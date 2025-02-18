@@ -5,7 +5,8 @@ COPY *.sln .
 COPY Domain/*.csproj ./Domain/
 COPY Application/*.csproj ./Application/
 COPY WebApi/*.csproj ./WebApi/
-COPY Mocks.DataAccess/*.csproj ./Mocks.DataAccess/
+COPY DataAccess.Mocks/*.csproj ./DataAccess.Mocks/
+COPY DataAccess.Db/*.csproj ./DataAccess.Db/
 
 RUN dotnet restore
 

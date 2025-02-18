@@ -1,5 +1,7 @@
 using Application.Api;
-using Mocks.DataAccess;
+using Db.DataAccess;
+using Db.DataAccess.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +9,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSingleton<IBooksRepository, MockBookRepository>();
+var connectionString = builder.Configuration.GetConnectionString("MySqlConnection");
+
+builder.Services.AddDbContext<ServiceDbContext>(options =>
+    {
+        options.UseMySQL(connectionString!);
+    }
+);
+
+builder.Services.AddScoped<IBooksRepository, DbBooksRepository>();
 
 var app = builder.Build();
 
