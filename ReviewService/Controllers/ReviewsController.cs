@@ -1,26 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ReviewService.Models;
+using ReviewService.Repositories;
 
 namespace ReviewService.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ReviewsController : ControllerBase
-{
-    private static List<Review> _reviews = [
-        new() { Id = 1, BookId = 1, ReviewerName = "Alice", Content = "Great book!", Rating = 5 },
-        new() { Id = 2, BookId = 1, ReviewerName = "Bob", Content = "I didn't like it", Rating = 2 },
-        new() { Id = 3, BookId = 2, ReviewerName = "Charlie", Content = "It was okay", Rating = 3 }
-    ];
-    
+public class ReviewsController(IReviewRepository repository) : ControllerBase {
     [HttpGet]
-    public ActionResult<List<Review>> GetReviews() {
-        return Ok(_reviews);
+    public async Task<ActionResult<IEnumerable<Review>>> GetReviews() {
+        var reviews = await repository.GetAllAsync();
+        return Ok(reviews);
     }
     
     [HttpGet("{id:int}")]
-    public ActionResult<Review> GetReview(int id) {
-        var review = _reviews.FirstOrDefault(r => r.Id == id);
+    public async Task<ActionResult<Review>> GetReview(int id) {
+        var review = await repository.GetByIdAsync(id);
         if (review == null) {
             return NotFound();
         }
@@ -28,39 +23,32 @@ public class ReviewsController : ControllerBase
     }
     
     [HttpGet("book/{bookId:int}")]
-    public ActionResult<IEnumerable<Review>> GetByBookId(int bookId) {
-        var reviews = _reviews.Where(r => r.BookId == bookId).ToList();
+    public async Task<ActionResult<IEnumerable<Review>>> GetByBookId(int bookId) {
+        var reviews = await repository.GetByBookIdAsync(bookId);
         return Ok(reviews);
     }
 
     [HttpPost]
-    public ActionResult<Review> Create(Review review) {
-        review.Id = _reviews.Count > 0 ? _reviews.Max(r => r.Id) + 1 : 1;
-        _reviews.Add(review);
-        return CreatedAtAction(nameof(GetReview), new { id = review.Id }, review);
+    public async Task<ActionResult<Review>> Create(Review review) {
+        var createdReview = await repository.CreateAsync(review);
+        return CreatedAtAction(nameof(GetReview), new { id = createdReview.Id }, createdReview);
     }
 
     [HttpPut("{id:int}")]
-    public IActionResult Update(int id, Review review) {
-        var existingReview = _reviews.FirstOrDefault(r => r.Id == id);
-        if (existingReview == null)
+    public async Task<IActionResult> Update(int id, Review review) {
+        var result = await repository.UpdateAsync(id, review);
+        if (!result)
             return NotFound();
         
-        existingReview.BookId = review.BookId;
-        existingReview.ReviewerName = review.ReviewerName;
-        existingReview.Content = review.Content;
-        existingReview.Rating = review.Rating;
-            
         return NoContent();
     }
 
     [HttpDelete("{id:int}")]
-    public IActionResult Delete(int id) {
-        var review = _reviews.FirstOrDefault(r => r.Id == id);
-        if (review == null)
+    public async Task<IActionResult> Delete(int id) {
+        var result = await repository.DeleteAsync(id);
+        if (!result)
             return NotFound();
         
-        _reviews.Remove(review);
         return NoContent();
     }
 }
