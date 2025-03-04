@@ -1,0 +1,5 @@
+﻿services:
+  review-service:
+    build: ./ReviewService
+    ports:
+      - "5001:8080"
