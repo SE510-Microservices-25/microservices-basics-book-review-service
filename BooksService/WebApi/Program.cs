@@ -9,11 +9,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var connectionString = builder.Configuration.GetConnectionString("MySqlConnection");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ServiceDbContext>(options =>
     {
-        options.UseMySQL(connectionString!);
+        options.UseNpgsql(connectionString);
     }
 );
 
