@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ReviewService.Models;
-using ReviewService.Repositories;
+﻿namespace ReviewService.Controllers;
 
-namespace ReviewService.Controllers;
+using Microsoft.AspNetCore.Mvc;
+
+using Models;
+using Repositories;
 
 [ApiController]
 [Route("api/[controller]")]

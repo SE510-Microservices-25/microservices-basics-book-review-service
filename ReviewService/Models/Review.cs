@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿namespace ReviewService.Models;
 
-namespace ReviewService.Models;
+using System.ComponentModel.DataAnnotations;
 
 public class Review {
     public int Id { get; set; }

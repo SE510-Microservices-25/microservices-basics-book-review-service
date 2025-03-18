@@ -1,6 +1,6 @@
-﻿using ReviewService.Models;
+﻿namespace ReviewService.Repositories;
 
-namespace ReviewService.Repositories;
+using Models;
 
 public interface IReviewRepository {
     Task<IEnumerable<Review>> GetAllAsync();

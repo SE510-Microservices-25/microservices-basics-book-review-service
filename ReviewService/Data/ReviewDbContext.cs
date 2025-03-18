@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ReviewService.Models;
+﻿namespace ReviewService.Data;
 
-namespace ReviewService.Data;
+using Microsoft.EntityFrameworkCore;
+
+using Models;
 
 public class ReviewDbContext(DbContextOptions<ReviewDbContext> options) : DbContext(options) {
     public DbSet<Review> Reviews { get; set; }

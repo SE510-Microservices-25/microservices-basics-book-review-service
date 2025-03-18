@@ -7,6 +7,10 @@
       postgres:
         condition: service_healthy
     restart: on-failure
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - microservices-network
 
   postgres:
     image: postgres:latest
@@ -21,10 +25,16 @@
       - postgres-data:/var/lib/postgresql/data
       - ./db-init:/docker-entrypoint-initdb.d
     healthcheck:
-        test: ["CMD-SHELL", "pg_isready -U review_user"]
-        interval: 10s
-        timeout: 5s
-        retries: 5
+      test: ["CMD-SHELL", "pg_isready -U review_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    driver: bridge
 
 volumes:
   postgres-data:

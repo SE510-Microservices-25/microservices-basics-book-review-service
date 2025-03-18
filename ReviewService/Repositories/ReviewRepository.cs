@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ReviewService.Data;
-using ReviewService.Models;
+﻿namespace ReviewService.Repositories;
 
-namespace ReviewService.Repositories;
+using Microsoft.EntityFrameworkCore;
+
+using Data;
+using Models;
 
 public class ReviewRepository(ReviewDbContext context) : IReviewRepository {
     public async Task<IEnumerable<Review>> GetAllAsync() {
