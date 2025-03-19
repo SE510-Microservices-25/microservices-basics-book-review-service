@@ -1,6 +1,7 @@
 ﻿namespace ReviewService.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 using Models;
 using Repositories;
@@ -29,13 +30,27 @@ public class ReviewsController(IReviewRepository repository) : ControllerBase {
         return Ok(reviews);
     }
 
+    [HttpGet("statistics")]
+    public async Task<ActionResult<IEnumerable<BookRatingStatistics>>> GetAllStatistics() {
+        var statistics = await repository.GetAllBooksStatisticsAsync();
+        return Ok(statistics);
+    }
+    
+    [HttpGet("statistics/book/{bookId:int}")]
+    public async Task<ActionResult<BookRatingStatistics>> GetBookStatistics(int bookId) {
+        var statistics = await repository.GetBookStatisticsAsync(bookId);
+        return Ok(statistics);
+    }
+    
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<Review>> Create(Review review) {
         var createdReview = await repository.CreateAsync(review);
         return CreatedAtAction(nameof(GetReview), new { id = createdReview.Id }, createdReview);
     }
 
     [HttpPut("{id:int}")]
+    [Authorize]
     public async Task<IActionResult> Update(int id, Review review) {
         var result = await repository.UpdateAsync(id, review);
         if (!result)
@@ -45,6 +60,7 @@ public class ReviewsController(IReviewRepository repository) : ControllerBase {
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize]
     public async Task<IActionResult> Delete(int id) {
         var result = await repository.DeleteAsync(id);
         if (!result)

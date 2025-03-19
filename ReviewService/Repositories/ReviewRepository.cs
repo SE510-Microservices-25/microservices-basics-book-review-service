@@ -47,4 +47,25 @@ public class ReviewRepository(ReviewDbContext context) : IReviewRepository {
         await context.SaveChangesAsync();
         return true;
     }
+    
+    public async Task<BookRatingStatistics> GetBookStatisticsAsync(int bookId) {
+        var reviews = await context.Reviews.Where(r => r.BookId == bookId).ToListAsync();
+        
+        return new BookRatingStatistics {
+            BookId = bookId,
+            ReviewCount = reviews.Count,
+            AverageRating = reviews.Count > 0 ? Math.Round(reviews.Average(r => r.Rating), 2) : 0
+        };
+    }
+    
+    public async Task<IEnumerable<BookRatingStatistics>> GetAllBooksStatisticsAsync() {
+        return await context.Reviews
+            .GroupBy(r => r.BookId)
+            .Select(g => new BookRatingStatistics {
+                BookId = g.Key,
+                ReviewCount = g.Count(),
+                AverageRating = Math.Round(g.Average(r => r.Rating), 2)
+            })
+            .ToListAsync();
+    }
 }

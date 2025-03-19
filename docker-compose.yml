@@ -6,9 +6,12 @@
     depends_on:
       postgres:
         condition: service_healthy
-    restart: on-failure
+      keycloak:
+        condition: service_started
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - Keycloak__Authority=http://keycloak:8080/realms/BookReview
+      - Keycloak__ClientId=review-service
     networks:
       - microservices-network
 
@@ -32,9 +35,24 @@
     networks:
       - microservices-network
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    command: start-dev
+    ports:
+      - "8080:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - keycloak-data:/opt/keycloak/data
+    networks:
+      - microservices-network
+
 networks:
   microservices-network:
     driver: bridge
 
 volumes:
   postgres-data:
+  keycloak-data:

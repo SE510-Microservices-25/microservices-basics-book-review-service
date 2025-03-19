@@ -1,47 +1,48 @@
 ﻿param(
     [Parameter(Mandatory=$true)]
-    [ValidateSet("start", "stop", "status", "url")]
+    [ValidateSet("start", "stop", "url")]
     [string]$Action
 )
 
 function Build-DockerImage {
     Write-Host "Building Docker images..." -ForegroundColor Cyan
+    $minikubeEnv = minikube docker-env --shell powershell
+    if ($?) {
+        Write-Host "Setting Minikube Docker environment" -ForegroundColor Yellow
+        & minikube -p minikube docker-env --shell powershell | Invoke-Expression
+    }
     docker build -t review-service:latest -f ReviewService/Dockerfile ReviewService/
 }
 
 function Deploy-ToKubernetes {
     Write-Host "Deploying to Kubernetes..." -ForegroundColor Cyan
     kubectl apply -f k8s/postgres-secret.yaml
+    kubectl apply -f k8s/keycloak-pvc.yaml
     kubectl apply -f k8s/postgres-service.yaml
     kubectl apply -f k8s/postgres-deployment.yaml
+    
+    kubectl apply -f k8s/keycloak-service.yaml
+    kubectl apply -f k8s/keycloak-deployment.yaml
+    
     kubectl apply -f k8s/review-service.yaml
     kubectl apply -f k8s/review-deployment.yaml
     kubectl apply -f k8s/ingress.yaml
 }
 
 function Wait-ForPodsReady {
-    param (
-        [int]$TimeoutSeconds = 300
-    ) 
-    
     Write-Host "Waiting for pods to be ready..." -ForegroundColor Yellow
-    $startTime = Get-Date
-    while ((Get-Date) -lt $startTime.AddSeconds($TimeoutSeconds)) {
+    foreach ($i in 1..10) {
         $podStatus = kubectl get pods --no-headers | Where-Object { $_ -notmatch "Running|Completed" }
         if (-not $podStatus) {
             Write-Host "All pods are ready!" -ForegroundColor Green
             return $true
         }
-        Start-Sleep -Seconds 2
+
+        Start-Sleep -Seconds 6
     }
 
     Write-Host "Timeout waiting for pods to be ready" -ForegroundColor Red
     return $false
-}
-
-function Check-PodStatus {
-    Write-Host "Checking pod status..." -ForegroundColor Cyan
-    kubectl get pods
 }
 
 function Get-ServiceUrl {
@@ -50,6 +51,9 @@ function Get-ServiceUrl {
     if ($ingressHost) {
         Write-Host "Service URL:" -ForegroundColor Cyan
         Write-Host "http://$ingressHost/swagger" -ForegroundColor Green
+
+        Write-Host "Keycloak URL:" -ForegroundColor Cyan
+        Write-Host "http://auth.$ingressHost" -ForegroundColor Green
     } else {
         Write-Host "Ingress host not found." -ForegroundColor Yellow
     }
@@ -60,9 +64,12 @@ function Cleanup-Cluster {
     kubectl delete -f k8s/ingress.yaml
     kubectl delete -f k8s/review-deployment.yaml
     kubectl delete -f k8s/review-service.yaml
+    kubectl delete -f k8s/keycloak-deployment.yaml
+    kubectl delete -f k8s/keycloak-service.yaml
     kubectl delete -f k8s/postgres-deployment.yaml
     kubectl delete -f k8s/postgres-service.yaml
     kubectl delete -f k8s/postgres-secret.yaml
+#    kubectl delete -f k8s/keycloak-pvc.yaml
 }
 
 switch ($Action) {
@@ -70,15 +77,12 @@ switch ($Action) {
         Build-DockerImage
         Deploy-ToKubernetes
         if (Wait-ForPodsReady) {
-            Check-PodStatus
+            kubectl get pods
             Get-ServiceUrl
         }
     }
     "stop" {
         Cleanup-Cluster
-    }
-    "status" {
-        Check-PodStatus
     }
     "url" {
         Get-ServiceUrl

@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: review-service
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: review-service
@@ -25,6 +25,12 @@ spec:
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: "Development"
+            - name: Keycloak__Authority
+              value: "http://keycloak:8080/realms/BookReview"
+            - name: Keycloak__ExternalAuthority
+              value: "http://auth.bookreview.local/realms/BookReview"
+            - name: Keycloak__ClientId
+              value: "review-service"
             - name: ConnectionStrings__DefaultConnection
               valueFrom:
                 secretKeyRef:

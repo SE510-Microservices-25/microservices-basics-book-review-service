@@ -9,4 +9,7 @@ public interface IReviewRepository {
     Task<Review> CreateAsync(Review review);
     Task<bool> UpdateAsync(int id, Review review);
     Task<bool> DeleteAsync(int id);
+    
+    Task<BookRatingStatistics> GetBookStatisticsAsync(int bookId);
+    Task<IEnumerable<BookRatingStatistics>> GetAllBooksStatisticsAsync();
 }
