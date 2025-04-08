@@ -25,3 +25,13 @@ spec:
                 name: keycloak
                 port:
                   number: 8080
+    - host: rabbitmq.bookreview.local
+      http:
+        paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: rabbitmq
+                  port:
+                    number: 15672

@@ -24,10 +24,10 @@ public class ReviewRepository(ReviewDbContext context) : IReviewRepository {
         return review;
     }
 
-    public async Task<bool> UpdateAsync(int id, Review review) {
+    public async Task<Review?> UpdateAsync(int id, Review review) {
         var existingReview = await context.Reviews.FindAsync(id);
         if (existingReview == null)
-            return false;
+            return null;
 
         existingReview.BookId = review.BookId;
         existingReview.ReviewerName = review.ReviewerName;
@@ -35,7 +35,7 @@ public class ReviewRepository(ReviewDbContext context) : IReviewRepository {
         existingReview.Rating = review.Rating;
 
         await context.SaveChangesAsync();
-        return true;
+        return existingReview;
     }
 
     public async Task<bool> DeleteAsync(int id) {

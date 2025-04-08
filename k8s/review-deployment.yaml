@@ -31,6 +31,12 @@ spec:
               value: "http://auth.bookreview.local/realms/BookReview"
             - name: Keycloak__ClientId
               value: "review-service"
+            - name: RabbitMQ__Host
+              value: "rabbitmq"
+            - name: RabbitMQ__Username
+              value: "guest"
+            - name: RabbitMQ__Password
+              value: "guest"
             - name: ConnectionStrings__DefaultConnection
               valueFrom:
                 secretKeyRef:

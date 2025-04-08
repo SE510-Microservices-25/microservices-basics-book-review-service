@@ -11,21 +11,27 @@ function Build-DockerImage {
         Write-Host "Setting Minikube Docker environment" -ForegroundColor Yellow
         & minikube -p minikube docker-env --shell powershell | Invoke-Expression
     }
-    docker build -t review-service:latest -f ReviewService/Dockerfile ReviewService/
+    docker build --network=host -t review-service:latest -f ReviewService/Dockerfile ReviewService/
 }
 
 function Deploy-ToKubernetes {
     Write-Host "Deploying to Kubernetes..." -ForegroundColor Cyan
     kubectl apply -f k8s/postgres-secret.yaml
     kubectl apply -f k8s/keycloak-pvc.yaml
+
+    # Services
     kubectl apply -f k8s/postgres-service.yaml
-    kubectl apply -f k8s/postgres-deployment.yaml
-    
     kubectl apply -f k8s/keycloak-service.yaml
-    kubectl apply -f k8s/keycloak-deployment.yaml
-    
     kubectl apply -f k8s/review-service.yaml
+    kubectl apply -f k8s/rabbitmq-service.yaml
+
+    # Deployments
+    kubectl apply -f k8s/postgres-deployment.yaml
+    kubectl apply -f k8s/keycloak-deployment.yaml
+    kubectl apply -f k8s/rabbitmq-deployment.yaml
     kubectl apply -f k8s/review-deployment.yaml
+
+    # Ingress
     kubectl apply -f k8s/ingress.yaml
 }
 
@@ -61,13 +67,21 @@ function Get-ServiceUrl {
 
 function Cleanup-Cluster {
     Write-Host "Cleaning up Kubernetes cluster..."
+    # Ingress
     kubectl delete -f k8s/ingress.yaml
+    
+    # Deployments
     kubectl delete -f k8s/review-deployment.yaml
-    kubectl delete -f k8s/review-service.yaml
+    kubectl delete -f k8s/rabbitmq-deployment.yaml
     kubectl delete -f k8s/keycloak-deployment.yaml
-    kubectl delete -f k8s/keycloak-service.yaml
     kubectl delete -f k8s/postgres-deployment.yaml
+    
+    # Services
+    kubectl delete -f k8s/review-service.yaml
+    kubectl delete -f k8s/rabbitmq-service.yaml
+    kubectl delete -f k8s/keycloak-service.yaml
     kubectl delete -f k8s/postgres-service.yaml
+
     kubectl delete -f k8s/postgres-secret.yaml
 #    kubectl delete -f k8s/keycloak-pvc.yaml
 }
