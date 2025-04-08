@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
 using Models;
-using Repositories;
-using Services;
+using Repositories.Review;
+using Services.MQ;
 
 [ApiController]
 [Route("api/[controller]")]

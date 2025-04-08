@@ -18,8 +18,8 @@ var keycloakClientId = builder.Configuration["Keycloak:ClientId"];
 builder.Services.AddDbContext<ReviewDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
-builder.Services.AddScoped<MessageBusService>();
+builder.Services.AddRepositories();
+builder.Services.AddServices();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
@@ -51,8 +51,11 @@ builder.Services.AddMassTransit(x => {
             h.Password(rabbitMqPassword);
         });
 
+        cfg.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(2)));
         cfg.ReceiveEndpoint("book-created-queue", e => {
             e.ConfigureConsumer<BookCreatedConsumer>(context);
+            e.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(2)));
+            e.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30)));
         });
     });
 });

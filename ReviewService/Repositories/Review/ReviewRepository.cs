@@ -1,4 +1,4 @@
-﻿namespace ReviewService.Repositories;
+﻿namespace ReviewService.Repositories.Review;
 
 using Microsoft.EntityFrameworkCore;
 

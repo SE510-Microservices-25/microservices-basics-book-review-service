@@ -3,12 +3,18 @@
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
-// test class if other services are not available
-public record BookCreated(int Id, string Title, string Author);
+using Contracts;
+using Services.Event;
 
-public class BookCreatedConsumer(ILogger<BookCreatedConsumer> logger) : IConsumer<BookCreated> {
-    public Task Consume(ConsumeContext<BookCreated> context) {
-        logger.LogInformation("Book created: {Title} by {Author}", context.Message.Title, context.Message.Author);
-        return Task.CompletedTask;
+public class BookCreatedConsumer(ILogger<BookCreatedConsumer> logger, IEventProcessingService eventProcessingService) : IConsumer<BookCreated> {
+    public async Task Consume(ConsumeContext<BookCreated> context) {
+        var (id, title, author) = context.Message;
+        const string eventType = nameof(BookCreated);
+        if (await eventProcessingService.IsEventProcessedAsync(id, eventType)) {
+            return;
+        }
+
+        logger.LogInformation("Book created: {Title} by {Author}", title, author);
+        await eventProcessingService.MarkEventAsProcessedAsync(id, eventType);
     }
 }
