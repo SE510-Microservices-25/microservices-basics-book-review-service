@@ -20,6 +20,7 @@ builder.Services.AddDbContext<ReviewDbContext>(options =>
 
 builder.Services.AddRepositories();
 builder.Services.AddServices();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
@@ -40,6 +41,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddMassTransit(x => {
     x.AddConsumer<BookCreatedConsumer>();
+    x.AddConsumer<DLQConsumer>();
 
     x.UsingRabbitMq((context, cfg) => {
         var rabbitMqHost = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq";
@@ -52,10 +54,18 @@ builder.Services.AddMassTransit(x => {
         });
 
         cfg.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(2)));
+
         cfg.ReceiveEndpoint("book-created-queue", e => {
             e.ConfigureConsumer<BookCreatedConsumer>(context);
             e.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(2)));
             e.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30)));
+            e.DiscardFaultedMessages();
+            e.DiscardSkippedMessages();
+        });
+        
+        cfg.ReceiveEndpoint("book-created-error-queue", e => {
+            e.ConfigureConsumer<DLQConsumer>(context);
+            e.Bind("book-created-queue.error");
         });
     });
 });
