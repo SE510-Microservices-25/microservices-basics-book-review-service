@@ -40,6 +40,8 @@ if (app.Environment.IsDevelopment()) {
 }
 
 using (var scope = app.Services.CreateScope()) {
+    var dbContext = scope.ServiceProvider.GetRequiredService<BookDbContext>();
+    dbContext.Database.Migrate();
     var syncService = scope.ServiceProvider.GetRequiredService<InitialDataSyncService>();
     await syncService.SyncInitialDataAsync();
 }
