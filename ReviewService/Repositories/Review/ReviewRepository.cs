@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Data;
 using Models;
+using Models.DTOs;
 
 public class ReviewRepository(ReviewDbContext context) : IReviewRepository {
     public async Task<IEnumerable<Review>> GetAllAsync() {
@@ -24,15 +25,14 @@ public class ReviewRepository(ReviewDbContext context) : IReviewRepository {
         return review;
     }
 
-    public async Task<Review?> UpdateAsync(int id, Review review) {
-        var existingReview = await context.Reviews.FindAsync(id);
+    public async Task<Review?> UpdateAsync(UpdateReviewCommand request) {
+        var existingReview = await context.Reviews.FindAsync(request.Id);
         if (existingReview == null)
             return null;
 
-        existingReview.BookId = review.BookId;
-        existingReview.ReviewerName = review.ReviewerName;
-        existingReview.Content = review.Content;
-        existingReview.Rating = review.Rating;
+        existingReview.ReviewerName = request.ReviewerName;
+        existingReview.Content = request.Content;
+        existingReview.Rating = request.Rating;
 
         await context.SaveChangesAsync();
         return existingReview;

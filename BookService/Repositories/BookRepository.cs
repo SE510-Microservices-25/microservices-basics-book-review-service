@@ -21,19 +21,6 @@ public class BookRepository(BookDbContext context) : IBookRepository {
         return book;
     }
 
-    public async Task<Book?> UpdateAsync(int id, Book book) {
-        var existingBook = await context.Books.FindAsync(id);
-        if (existingBook == null)
-            return null;
-
-        existingBook.Title = book.Title;
-        existingBook.Author = book.Author;
-        existingBook.Genre = book.Genre;
-
-        await context.SaveChangesAsync();
-        return existingBook;
-    }
-
     public async Task<bool> DeleteAsync(int id) {
         var book = await context.Books.FindAsync(id);
         if (book == null)

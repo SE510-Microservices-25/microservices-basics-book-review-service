@@ -14,15 +14,4 @@ public record BookCreated(int Id, string Title, string Author, string Genre, Dat
     }
 }
 
-public record BookUpdated(int Id, string Title, string Author, string Genre) {
-    public static BookUpdated FromBook(Book book) {
-        return new BookUpdated(
-            book.Id,
-            book.Title ?? string.Empty,
-            book.Author ?? string.Empty,
-            book.Genre ?? string.Empty
-        );
-    }
-}
-
 public record BookDeleted(int Id);

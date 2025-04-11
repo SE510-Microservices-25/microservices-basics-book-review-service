@@ -8,14 +8,14 @@ spec:
     - host: bookreview.local
       http:
         paths:
-          - path: /books/(.*)
+          - path: /books
             pathType: Prefix
             backend:
               service:
                 name: book-service
                 port:
                   number: 80
-          - path: /reviews/(.*)
+          - path: /reviews
             pathType: Prefix
             backend:
               service:
@@ -25,7 +25,7 @@ spec:
     - host: book.bookreview.local
       http:
         paths:
-          - path: /(.*)
+          - path: /
             pathType: Prefix
             backend:
               service:
@@ -35,7 +35,7 @@ spec:
     - host: review.bookreview.local
       http:
         paths:
-          - path: /(.*)
+          - path: /
             pathType: Prefix
             backend:
               service:
@@ -45,7 +45,7 @@ spec:
     - host: auth.bookreview.local
       http:
         paths:
-          - path: /(.*)
+          - path: /
             pathType: Prefix
             backend:
               service:
@@ -55,7 +55,7 @@ spec:
     - host: rabbitmq.bookreview.local
       http:
         paths:
-            - path: /(.*)
+            - path: /
               pathType: Prefix
               backend:
                 service:

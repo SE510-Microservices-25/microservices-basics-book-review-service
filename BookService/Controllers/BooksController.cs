@@ -32,16 +32,6 @@ public class BooksController(IBookRepository bookRepository, IMessageBusService 
         return CreatedAtAction(nameof(GetBook), new { id = createdBook.Id }, createdBook);
     }
 
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateBook(int id, Book book) {
-        var updatedBook = await bookRepository.UpdateAsync(id, book);
-        if (updatedBook == null)
-            return NotFound();
-        
-        await messageBus.PublishBookUpdated(updatedBook);
-        return NoContent();
-    }
-
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteBook(int id) {
         var result = await bookRepository.DeleteAsync(id);
