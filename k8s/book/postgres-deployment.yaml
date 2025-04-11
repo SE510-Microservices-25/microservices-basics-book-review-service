@@ -1,0 +1,51 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: book-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: book-postgres
+  template:
+    metadata:
+      labels:
+        app: book-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:latest
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: book_user
+            - name: POSTGRES_PASSWORD
+              value: book_password
+            - name: POSTGRES_DB
+              value: BookDB
+          volumeMounts:
+            - name: book-postgres-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: book-postgres-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: book-postgres
+spec:
+  selector:
+    app: book-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: book-postgres-secret
+type: Opaque
+stringData:
+  connection-string: "Host=book-postgres;Port=5432;Database=BookDB;Username=book_user;Password=book_password;Timeout=30;Command Timeout=30"
