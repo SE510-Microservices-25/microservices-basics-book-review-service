@@ -26,7 +26,7 @@ spec:
             - name: ASPNETCORE_ENVIRONMENT
               value: "Development"
             - name: Keycloak__Authority
-              value: "http://review-keycloak:8080/realms/BookReview"
+              value: "http://keycloak:8080/realms/BookReview"
             - name: Keycloak__ExternalAuthority
               value: "http://auth.review.local/realms/BookReview"
             - name: Keycloak__ClientId

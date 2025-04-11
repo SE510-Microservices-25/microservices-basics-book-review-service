@@ -18,26 +18,24 @@ function Build-DockerImage {
 function Deploy-ToKubernetes {
     Write-Host "Deploying Review Service to Kubernetes..." -ForegroundColor Cyan
 
-    # Apply RabbitMQ
-    kubectl apply -f k8s/review/rabbitmq/deployment.yaml
-    kubectl apply -f k8s/review/rabbitmq/service.yaml
-
-    # Apply PostgreSQL
-    kubectl apply -f k8s/review/postgres/deployment.yaml
-    kubectl apply -f k8s/review/postgres/service.yaml
-    kubectl apply -f k8s/review/postgres/secret.yaml
-
-    # Apply Keycloak
+    # Secrets
     kubectl apply -f k8s/review/keycloak/pvc.yaml
-    kubectl apply -f k8s/review/keycloak/deployment.yaml
-    kubectl apply -f k8s/review/keycloak/service.yaml
-
-    # Apply Review Service
+    kubectl apply -f k8s/review/postgres/secret.yaml
     kubectl apply -f k8s/review/review-service/secret.yaml
-    kubectl apply -f k8s/review/review-service/deployment.yaml
-    kubectl apply -f k8s/review/review-service/service.yaml
 
-    # Apply Ingress
+    # Services
+    kubectl apply -f k8s/review/postgres/service.yaml
+    kubectl apply -f k8s/review/keycloak/service.yaml
+    kubectl apply -f k8s/review/rabbitmq/service.yaml
+    kubectl apply -f k8s/review/review-service/service.yaml
+    
+    # Deployments
+    kubectl apply -f k8s/review/postgres/deployment.yaml
+    kubectl apply -f k8s/review/keycloak/deployment.yaml
+    kubectl apply -f k8s/review/rabbitmq/deployment.yaml
+    kubectl apply -f k8s/review/review-service/deployment.yaml
+
+    # Ingress
     kubectl apply -f k8s/review/ingress.yaml
 }
 
@@ -66,26 +64,24 @@ function Get-ServicesUrl {
 function Cleanup-Cluster {
     Write-Host "Cleaning up Review Service from Kubernetes cluster..." -ForegroundColor Cyan
 
-    # Delete Ingress
-    kubectl delete -f k8s/review/ingress.yaml
+    # Ingress
+    kubectl apply -f k8s/review/ingress.yaml
 
-    # Delete Review Service
-    kubectl delete -f k8s/review/review-service/service.yaml
-    kubectl delete -f k8s/review/review-service/deployment.yaml
-    kubectl delete -f k8s/review/review-service/secret.yaml
+    # Deployments
+    kubectl apply -f k8s/review/review-service/deployment.yaml
+    kubectl apply -f k8s/review/rabbitmq/deployment.yaml
+    kubectl apply -f k8s/review/keycloak/deployment.yaml
+    kubectl apply -f k8s/review/postgres/deployment.yaml
 
-    # Delete Keycloak
-    kubectl delete -f k8s/review/keycloak/service.yaml
-    kubectl delete -f k8s/review/keycloak/deployment.yaml
+    # Services
+    kubectl apply -f k8s/review/review-service/service.yaml
+    kubectl apply -f k8s/review/rabbitmq/service.yaml
+    kubectl apply -f k8s/review/keycloak/service.yaml
+    kubectl apply -f k8s/review/postgres/service.yaml
 
-    # Delete PostgreSQL
-    kubectl delete -f k8s/review/postgres/secret.yaml
-    kubectl delete -f k8s/review/postgres/service.yaml
-    kubectl delete -f k8s/review/postgres/deployment.yaml
-
-    # Delete RabbitMQ
-    kubectl delete -f k8s/review/rabbitmq/service.yaml
-    kubectl delete -f k8s/review/rabbitmq/deployment.yaml
+    # Secrets
+    kubectl apply -f k8s/review/review-service/secret.yaml
+    kubectl apply -f k8s/review/postgres/secret.yaml
 }
 
 switch ($Action) {

@@ -17,22 +17,22 @@ function Build-DockerImage {
 
 function Deploy-ToKubernetes {
     Write-Host "Deploying Book Service to Kubernetes..." -ForegroundColor Cyan
-
-    # Apply RabbitMQ
-    kubectl apply -f k8s/book/rabbitmq/deployment.yaml
-    kubectl apply -f k8s/book/rabbitmq/service.yaml
-
-    # Apply PostgreSQL
-    kubectl apply -f k8s/book/postgres/deployment.yaml
-    kubectl apply -f k8s/book/postgres/service.yaml
+    
+    # Secrets
     kubectl apply -f k8s/book/postgres/secret.yaml
-
-    # Apply Book Service
     kubectl apply -f k8s/book/book-service/secret.yaml
-    kubectl apply -f k8s/book/book-service/deployment.yaml
+
+    # Services
+    kubectl apply -f k8s/book/postgres/service.yaml
+    kubectl apply -f k8s/book/rabbitmq/service.yaml
     kubectl apply -f k8s/book/book-service/service.yaml
 
-    # Apply Ingress
+    # Deployments
+    kubectl apply -f k8s/book/postgres/deployment.yaml
+    kubectl apply -f k8s/book/rabbitmq/deployment.yaml
+    kubectl apply -f k8s/book/book-service/deployment.yaml
+
+    # Ingress
     kubectl apply -f k8s/book/ingress.yaml
 }
 
@@ -60,22 +60,22 @@ function Get-ServicesUrl {
 function Cleanup-Cluster {
     Write-Host "Cleaning up Book Service from Kubernetes cluster..." -ForegroundColor Cyan
 
-    # Delete Ingress
+    # Ingress
     kubectl delete -f k8s/book/ingress.yaml
 
-    # Delete Book Service
-    kubectl delete -f k8s/book/book-service/service.yaml
-    kubectl delete -f k8s/book/book-service/deployment.yaml
-    kubectl delete -f k8s/book/book-service/secret.yaml
+    # Deployments
+    kubectl apply -f k8s/book/book-service/deployment.yaml
+    kubectl apply -f k8s/book/rabbitmq/deployment.yaml
+    kubectl apply -f k8s/book/postgres/deployment.yaml
 
-    # Delete PostgreSQL
-    kubectl delete -f k8s/book/postgres/secret.yaml
-    kubectl delete -f k8s/book/postgres/service.yaml
-    kubectl delete -f k8s/book/postgres/deployment.yaml
+    # Services
+    kubectl apply -f k8s/book/book-service/service.yaml
+    kubectl apply -f k8s/book/rabbitmq/service.yaml
+    kubectl apply -f k8s/book/postgres/service.yaml
 
-    # Delete RabbitMQ
-    kubectl delete -f k8s/book/rabbitmq/service.yaml
-    kubectl delete -f k8s/book/rabbitmq/deployment.yaml
+    # Secrets
+    kubectl apply -f k8s/book/book-service/secret.yaml
+    kubectl apply -f k8s/book/postgres/secret.yaml
 }
 
 switch ($Action) {
