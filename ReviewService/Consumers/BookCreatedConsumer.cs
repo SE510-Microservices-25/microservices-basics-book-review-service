@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Contracts;
 using Services.Event;
 
-public abstract class BookCreatedConsumer(ILogger<BookCreatedConsumer> logger, 
+public class BookCreatedConsumer(ILogger<BookCreatedConsumer> logger, 
     IEventProcessingService eventProcessingService, IHttpContextAccessor httpContextAccessor) : IConsumer<BookCreated> {
     public async Task Consume(ConsumeContext<BookCreated> context) {
         var user = httpContextAccessor.HttpContext?.User;
