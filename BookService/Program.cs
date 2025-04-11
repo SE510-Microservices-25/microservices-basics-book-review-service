@@ -4,6 +4,7 @@ using MassTransit;
 using BookService.Data;
 using BookService.Repositories;
 using BookService.Services.MQ;
+using BookService.Services.Sync;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,7 @@ builder.Services.AddDbContext<BookDbContext>(options =>
 
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IMessageBusService, MessageBusService>();
+builder.Services.AddScoped<InitialDataSyncService>();
 
 builder.Services.AddMassTransit(x => {
     x.UsingRabbitMq((_, cfg) => {
@@ -38,8 +40,8 @@ if (app.Environment.IsDevelopment()) {
 }
 
 using (var scope = app.Services.CreateScope()) {
-    var dbContext = scope.ServiceProvider.GetRequiredService<BookDbContext>();
-    dbContext.Database.Migrate();
+    var syncService = scope.ServiceProvider.GetRequiredService<InitialDataSyncService>();
+    await syncService.SyncInitialDataAsync();
 }
 
 app.UseHttpsRedirection();

@@ -48,6 +48,16 @@ public class ReviewRepository(ReviewDbContext context) : IReviewRepository {
         return true;
     }
     
+    public async Task<int> DeleteByBookIdAsync(int bookId) {
+        var reviews = await context.Reviews.Where(r => r.BookId == bookId).ToListAsync();
+        if (reviews.Count == 0)
+            return 0;
+        
+        context.Reviews.RemoveRange(reviews);
+        await context.SaveChangesAsync();
+        return reviews.Count;
+    }
+    
     public async Task<BookRatingStatistics> GetBookStatisticsAsync(int bookId) {
         var reviews = await context.Reviews.Where(r => r.BookId == bookId).ToListAsync();
         

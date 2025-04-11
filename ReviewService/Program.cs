@@ -45,6 +45,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddMassTransit(x => {
     x.AddConsumer<BookCreatedConsumer>();
+    x.AddConsumer<BookDeletedConsumer>();
     x.AddConsumer<DLQConsumer>();
 
     x.UsingRabbitMq((context, cfg) => {
@@ -70,6 +71,19 @@ builder.Services.AddMassTransit(x => {
         cfg.ReceiveEndpoint("book-created-error-queue", e => {
             e.ConfigureConsumer<DLQConsumer>(context);
             e.Bind("book-created-queue.error");
+        });
+        
+        cfg.ReceiveEndpoint("book-deleted-queue", e => {
+            e.ConfigureConsumer<BookDeletedConsumer>(context);
+            e.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(2)));
+            e.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30)));
+            e.DiscardFaultedMessages();
+            e.DiscardSkippedMessages();
+        });
+
+        cfg.ReceiveEndpoint("book-deleted-error-queue", e => {
+            e.ConfigureConsumer<DLQConsumer>(context);
+            e.Bind("book-deleted-queue.error");
         });
     });
 });

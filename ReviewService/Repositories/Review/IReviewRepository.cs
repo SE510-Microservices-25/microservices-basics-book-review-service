@@ -10,6 +10,7 @@ public interface IReviewRepository {
     Task<Review> CreateAsync(Review review);
     Task<Review?> UpdateAsync(UpdateReviewCommand request);
     Task<bool> DeleteAsync(int id);
+    Task<int> DeleteByBookIdAsync(int bookId);
     
     Task<BookRatingStatistics> GetBookStatisticsAsync(int bookId);
     Task<IEnumerable<BookRatingStatistics>> GetAllBooksStatisticsAsync();

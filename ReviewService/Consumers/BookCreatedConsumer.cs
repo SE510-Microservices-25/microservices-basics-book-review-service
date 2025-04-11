@@ -6,12 +6,14 @@ using Microsoft.Extensions.Configuration;
 
 using Contracts;
 using Services.Event;
+using Repositories.Book;
+using Models;
 
-public class BookCreatedConsumer(ILogger<BookCreatedConsumer> logger, 
-    IEventProcessingService eventProcessingService, IConfiguration configuration) : IConsumer<BookCreated> {
+public class BookCreatedConsumer(ILogger<BookCreatedConsumer> logger, IEventProcessingService eventProcessingService,
+    IBookRepository bookRepository, IConfiguration configuration) : IConsumer<Book> {
     private readonly string _serviceSecretKey = configuration["MessageBus:ServiceSecretKey"] ?? "default-key";
 
-    public async Task Consume(ConsumeContext<BookCreated> context) {
+    public async Task Consume(ConsumeContext<Book> context) {
         var authHeader = context.Headers.Get<string>("ServiceAuthentication");
         
         if (string.IsNullOrEmpty(authHeader) || authHeader != _serviceSecretKey) {
@@ -19,13 +21,16 @@ public class BookCreatedConsumer(ILogger<BookCreatedConsumer> logger,
             return;
         }
 
-        var (id, title, author) = context.Message;
+        var message = context.Message;
         const string eventType = nameof(BookCreated);
-        if (await eventProcessingService.IsEventProcessedAsync(id, eventType)) {
+        
+        if (await eventProcessingService.IsEventProcessedAsync(message.Id, eventType)) {
             return;
         }
 
-        logger.LogInformation("Book created: {Title} by {Author}", title, author);
-        await eventProcessingService.MarkEventAsProcessedAsync(id, eventType);
+        logger.LogInformation("Book created: {Title} by {Author}", message.Title, message.Author);
+        
+        await bookRepository.AddAsync(message);
+        await eventProcessingService.MarkEventAsProcessedAsync(message.Id, eventType);
     }
 }

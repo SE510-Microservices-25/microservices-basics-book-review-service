@@ -32,12 +32,12 @@ public class MessageBusService(IBus bus, ILogger<MessageBusService> logger, ICon
 
     public async Task PublishReviewCreated(Review review) {
         var messageId = $"ReviewCreated-{review.Id}";
-        await PublishWithLogging(ReviewCreated.FromReview(review), messageId);
+        await PublishWithLogging(review, messageId);
     }
 
     public async Task PublishReviewUpdated(Review review) {
         var messageId = $"ReviewUpdated-{review.Id}";
-        await PublishWithLogging(ReviewUpdated.FromReview(review), messageId);
+        await PublishWithLogging(review, messageId);
     }
 
     public async Task PublishReviewDeleted(int id, int bookId) {
@@ -47,6 +47,6 @@ public class MessageBusService(IBus bus, ILogger<MessageBusService> logger, ICon
 
     public async Task PublishBookRatingChanged(BookRatingStatistics statistics) {
         var messageId = $"BookRatingChanged-{statistics.BookId}";
-        await PublishWithLogging(BookRatingChanged.FromStatistics(statistics), messageId);
+        await PublishWithLogging(statistics, messageId);
     }
 }

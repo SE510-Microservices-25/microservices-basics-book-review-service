@@ -52,8 +52,8 @@ public class ReviewsController(IMediator mediator) : ControllerBase {
 
     [HttpPut("{id:int}")]
     [Authorize]
-    public async Task<IActionResult> Update(int id, UpdateReviewCommand command) {
-        var result = await mediator.Send(command with { Id = id });
+    public async Task<IActionResult> Update(UpdateReviewCommand command) {
+        var result = await mediator.Send(command);
         if (result == null)
             return NotFound();
         

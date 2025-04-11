@@ -7,6 +7,7 @@ using Models;
 public class ReviewDbContext(DbContextOptions<ReviewDbContext> options) : DbContext(options) {
     public DbSet<Review> Reviews { get; set; }
     public DbSet<ProcessedEvent> ProcessedEvents { get; set; }
+    public DbSet<Book> Books { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         ConfigureData(modelBuilder);
@@ -23,6 +24,9 @@ public class ReviewDbContext(DbContextOptions<ReviewDbContext> options) : DbCont
         modelBuilder.Entity<ProcessedEvent>()
             .HasIndex(e => new { e.EventId, e.EventType })
             .IsUnique();
+            
+        modelBuilder.Entity<Book>()
+            .HasKey(b => b.Id);
     }
 
     private static void SeedData(ModelBuilder modelBuilder) {
