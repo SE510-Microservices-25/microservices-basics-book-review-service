@@ -10,7 +10,7 @@ public record ReviewCreated(int Id, int BookId, string ReviewerName, string Cont
             review.ReviewerName,
             review.Content,
             review.Rating,
-            review.CreatedAt
+            review.CreatedAt ?? DateTime.UtcNow
         );
     }
 }

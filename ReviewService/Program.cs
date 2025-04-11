@@ -8,6 +8,8 @@ using ReviewService.Data;
 using ReviewService.Services;
 using ReviewService.Consumers;
 using ReviewService.Repositories;
+using ReviewService.Models;
+using ReviewService.Models.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +19,8 @@ var keycloakClientId = builder.Configuration["Keycloak:ClientId"];
 
 builder.Services.AddDbContext<ReviewDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CommandBase<Review>>());
 
 builder.Services.AddRepositories();
 builder.Services.AddServices();
