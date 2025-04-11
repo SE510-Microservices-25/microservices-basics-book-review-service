@@ -1,9 +1,16 @@
 using Application.Api;
 using Db.DataAccess;
 using Db.DataAccess.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var keycloakAuthority = builder.Configuration["Keycloak:Authority"];
+var keycloakExternalAuthority = builder.Configuration["Keycloak:ExternalAuthority"] ?? keycloakAuthority;
+var keycloakClientId = builder.Configuration["Keycloak:ClientId"];
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -19,15 +26,72 @@ builder.Services.AddDbContext<ServiceDbContext>(options =>
 
 builder.Services.AddScoped<IBooksRepository, DbBooksRepository>();
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = keycloakAuthority;
+        options.Audience = keycloakClientId;
+        options.RequireHttpsMetadata = false;
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuers = [keycloakAuthority, keycloakExternalAuthority],
+            ValidateAudience = true,
+            ValidAudience = keycloakClientId,
+            ValidateLifetime = true
+        };
+    });
+
+builder.Services.AddSwaggerGen(options => {
+    options.SwaggerDoc("v1", new OpenApiInfo { 
+        Title = "Books Service API", 
+        Version = "v1",
+        Description = "API for managing book reviews"
+    });
+
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme {
+        Type = SecuritySchemeType.OAuth2,
+        Flows = new OpenApiOAuthFlows {
+            AuthorizationCode = new OpenApiOAuthFlow {
+                AuthorizationUrl = new Uri($"{keycloakExternalAuthority}/protocol/openid-connect/auth"),
+                TokenUrl = new Uri($"{keycloakExternalAuthority}/protocol/openid-connect/token"),
+                Scopes = new Dictionary<string, string> {
+                    { "openid", "OpenID Connect" },
+                    { "profile", "User profile" },
+                    { "email", "User email" }
+                }
+            }
+        }
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement {
+        {
+            new OpenApiSecurityScheme {
+                Reference = new OpenApiReference {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "oauth2"
+                }
+            },
+            new List<string> { "openid", "profile", "email" }
+        }
+    });
+});
+
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI(options => {
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Books Service API v1");
+    options.OAuthClientId(keycloakClientId);
+    options.OAuthAppName("Books Service - Swagger");
+    options.OAuthUsePkce();
+});
 
 app.UseHttpsRedirection();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
