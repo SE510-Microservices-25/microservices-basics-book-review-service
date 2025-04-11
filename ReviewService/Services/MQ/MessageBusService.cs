@@ -7,7 +7,7 @@ using System.Diagnostics;
 using Contracts;
 using Models;
 
-public class MessageBusService(IBus bus, ILogger<MessageBusService> logger) {
+public class MessageBusService(IBus bus, ILogger<MessageBusService> logger, IConfiguration configuration) : IMessageBusService {
     private async Task PublishWithLogging<T>(T message, string messageId) where T : class {
         var messageType = typeof(T).Name;
     
@@ -18,7 +18,9 @@ public class MessageBusService(IBus bus, ILogger<MessageBusService> logger) {
 
         try {
             logger.LogInformation("Publishing {MessageType} with ID: {MessageId}", messageType, messageId);
-            await bus.Publish(message);
+            await bus.Publish(message, ctx => {
+                ctx.AddServiceAuthentication(configuration);
+            });
             logger.LogInformation("Successfully published {MessageType}", messageType);
         }
         catch (Exception ex) {

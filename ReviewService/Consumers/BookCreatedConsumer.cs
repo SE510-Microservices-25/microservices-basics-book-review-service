@@ -2,16 +2,19 @@
 
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 using Contracts;
 using Services.Event;
 
 public class BookCreatedConsumer(ILogger<BookCreatedConsumer> logger, 
-    IEventProcessingService eventProcessingService, IHttpContextAccessor httpContextAccessor) : IConsumer<BookCreated> {
+    IEventProcessingService eventProcessingService, IConfiguration configuration) : IConsumer<BookCreated> {
+    private readonly string _serviceSecretKey = configuration["MessageBus:ServiceSecretKey"] ?? "default-key";
+
     public async Task Consume(ConsumeContext<BookCreated> context) {
-        var user = httpContextAccessor.HttpContext?.User;
-        var isAuthenticated = user?.Identity?.IsAuthenticated ?? false;
-        if (!isAuthenticated) {
+        var authHeader = context.Headers.Get<string>("ServiceAuthentication");
+        
+        if (string.IsNullOrEmpty(authHeader) || authHeader != _serviceSecretKey) {
             logger.LogWarning("Unauthorized access attempt to BookCreatedConsumer");
             return;
         }

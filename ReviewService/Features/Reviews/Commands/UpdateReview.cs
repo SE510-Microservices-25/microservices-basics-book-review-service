@@ -7,7 +7,7 @@ using Models.DTOs;
 using Services.MQ;
 using Repositories.Review;
 
-public class UpdateReviewHandler(IReviewRepository repository, MessageBusService messageBus) : IRequestHandler<UpdateReviewCommand , Review?> {
+public class UpdateReviewHandler(IReviewRepository repository, IMessageBusService messageBus) : IRequestHandler<UpdateReviewCommand , Review?> {
     public async Task<Review?> Handle(UpdateReviewCommand  request, CancellationToken cancellationToken) {
         var review = new Review {
             Id = request.Id,

@@ -6,7 +6,7 @@ using Models.DTOs;
 using Repositories.Review;
 using Services.MQ;
 
-public class DeleteReviewHandler(IReviewRepository repository, MessageBusService messageBus) : IRequestHandler<DeleteReviewCommand, bool> {
+public class DeleteReviewHandler(IReviewRepository repository, IMessageBusService messageBus) : IRequestHandler<DeleteReviewCommand, bool> {
     public async Task<bool> Handle(DeleteReviewCommand request, CancellationToken cancellationToken) {
         var review = await repository.GetByIdAsync(request.Id);
         if (review == null)

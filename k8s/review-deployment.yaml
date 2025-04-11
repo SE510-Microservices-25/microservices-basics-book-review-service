@@ -37,6 +37,11 @@ spec:
               value: "guest"
             - name: RabbitMQ__Password
               value: "guest"
+            - name: MessageBus__ServiceSecretKey
+              valueFrom:
+                secretKeyRef:
+                  name: service-secret
+                  key: service-key
             - name: ConnectionStrings__DefaultConnection
               valueFrom:
                 secretKeyRef:

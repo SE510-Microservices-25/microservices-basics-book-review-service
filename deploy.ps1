@@ -17,6 +17,7 @@ function Build-DockerImage {
 function Deploy-ToKubernetes {
     Write-Host "Deploying to Kubernetes..." -ForegroundColor Cyan
     kubectl apply -f k8s/postgres-secret.yaml
+    kubectl apply -f k8s/service-secret.yaml
     kubectl apply -f k8s/keycloak-pvc.yaml
 
     # Services
@@ -53,7 +54,7 @@ function Wait-ForPodsReady {
 
 function Get-ServiceUrl {
     $ingressHost = kubectl get ingress -o jsonpath='{.items[0].spec.rules[0].host}'
-        
+
     if ($ingressHost) {
         Write-Host "Service URL:" -ForegroundColor Cyan
         Write-Host "http://$ingressHost/swagger" -ForegroundColor Green
@@ -69,13 +70,13 @@ function Cleanup-Cluster {
     Write-Host "Cleaning up Kubernetes cluster..."
     # Ingress
     kubectl delete -f k8s/ingress.yaml
-    
+
     # Deployments
     kubectl delete -f k8s/review-deployment.yaml
     kubectl delete -f k8s/rabbitmq-deployment.yaml
     kubectl delete -f k8s/keycloak-deployment.yaml
     kubectl delete -f k8s/postgres-deployment.yaml
-    
+
     # Services
     kubectl delete -f k8s/review-service.yaml
     kubectl delete -f k8s/rabbitmq-service.yaml
@@ -83,7 +84,8 @@ function Cleanup-Cluster {
     kubectl delete -f k8s/postgres-service.yaml
 
     kubectl delete -f k8s/postgres-secret.yaml
-#    kubectl delete -f k8s/keycloak-pvc.yaml
+    kubectl delete -f k8s/service-secret.yaml
+    #    kubectl delete -f k8s/keycloak-pvc.yaml
 }
 
 switch ($Action) {
