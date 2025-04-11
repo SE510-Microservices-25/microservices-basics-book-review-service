@@ -1,0 +1,32 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: review-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: review-postgres
+  template:
+    metadata:
+      labels:
+        app: review-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:latest
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: review_user
+            - name: POSTGRES_PASSWORD
+              value: review_password
+            - name: POSTGRES_DB
+              value: ReviewDB
+          volumeMounts:
+            - name: review-postgres-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: review-postgres-data
+          emptyDir: {}

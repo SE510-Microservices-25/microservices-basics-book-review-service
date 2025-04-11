@@ -15,7 +15,6 @@ public class BookCreatedConsumer(ILogger<BookCreatedConsumer> logger, IEventProc
 
     public async Task Consume(ConsumeContext<Book> context) {
         var authHeader = context.Headers.Get<string>("ServiceAuthentication");
-        
         if (string.IsNullOrEmpty(authHeader) || authHeader != _serviceSecretKey) {
             logger.LogWarning("Unauthorized access attempt to BookCreatedConsumer");
             return;
@@ -23,7 +22,6 @@ public class BookCreatedConsumer(ILogger<BookCreatedConsumer> logger, IEventProc
 
         var message = context.Message;
         const string eventType = nameof(BookCreated);
-        
         if (await eventProcessingService.IsEventProcessedAsync(message.Id, eventType)) {
             return;
         }

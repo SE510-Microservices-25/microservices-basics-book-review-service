@@ -44,46 +44,33 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddMassTransit(x => {
+    x.SetKebabCaseEndpointNameFormatter();
     x.AddConsumer<BookCreatedConsumer>();
     x.AddConsumer<BookDeletedConsumer>();
     x.AddConsumer<DLQConsumer>();
 
     x.UsingRabbitMq((context, cfg) => {
-        var rabbitMqHost = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq";
-        var rabbitMqUsername = builder.Configuration["RabbitMQ:Username"] ?? "guest";
-        var rabbitMqPassword = builder.Configuration["RabbitMQ:Password"] ?? "guest";
+        var host = builder.Configuration["RabbitMQ:Host"] ?? "review-rabbitmq";
+        var username = builder.Configuration["RabbitMQ:Username"] ?? "guest";
+        var password = builder.Configuration["RabbitMQ:Password"] ?? "guest";
 
-        cfg.Host(rabbitMqHost, h => {
-            h.Username(rabbitMqUsername);
-            h.Password(rabbitMqPassword);
+        cfg.Host(host, "/", h => {
+            h.Username(username);
+            h.Password(password);
         });
 
-        cfg.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(2)));
+        cfg.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(1)));
 
-        cfg.ReceiveEndpoint("book-created-queue", e => {
+        cfg.ReceiveEndpoint("review-book-created", e => {
             e.ConfigureConsumer<BookCreatedConsumer>(context);
-            e.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(2)));
-            e.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30)));
-            e.DiscardFaultedMessages();
-            e.DiscardSkippedMessages();
         });
         
-        cfg.ReceiveEndpoint("book-created-error-queue", e => {
-            e.ConfigureConsumer<DLQConsumer>(context);
-            e.Bind("book-created-queue.error");
-        });
-        
-        cfg.ReceiveEndpoint("book-deleted-queue", e => {
+        cfg.ReceiveEndpoint("review-book-deleted", e => {
             e.ConfigureConsumer<BookDeletedConsumer>(context);
-            e.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(2)));
-            e.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30)));
-            e.DiscardFaultedMessages();
-            e.DiscardSkippedMessages();
         });
-
-        cfg.ReceiveEndpoint("book-deleted-error-queue", e => {
+        
+        cfg.ReceiveEndpoint("review-deadletter", e => {
             e.ConfigureConsumer<DLQConsumer>(context);
-            e.Bind("book-deleted-queue.error");
         });
     });
 });

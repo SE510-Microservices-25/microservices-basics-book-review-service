@@ -15,7 +15,6 @@ public class BookDeletedConsumer(ILogger<BookDeletedConsumer> logger, IEventProc
 
     public async Task Consume(ConsumeContext<BookDeleted> context) {
         var authHeader = context.Headers.Get<string>("ServiceAuthentication");
-        
         if (string.IsNullOrEmpty(authHeader) || authHeader != _serviceSecretKey) {
             logger.LogWarning("Unauthorized access attempt to BookDeletedConsumer");
             return;
@@ -23,15 +22,21 @@ public class BookDeletedConsumer(ILogger<BookDeletedConsumer> logger, IEventProc
 
         var bookId = context.Message.Id;
         const string eventType = nameof(BookDeleted);
-        
         if (await eventProcessingService.IsEventProcessedAsync(bookId, eventType)) {
             return;
         }
 
-        var deletedCount = await reviewRepository.DeleteByBookIdAsync(bookId);
-        logger.LogInformation("Deleted {Count} reviews for book {BookId}", deletedCount, bookId);
+        try {
+            var deletedCount = await reviewRepository.DeleteByBookIdAsync(bookId);
+            logger.LogInformation("Deleted {Count} reviews for book {BookId}", deletedCount, bookId);
 
-        await bookRepository.DeleteAsync(bookId);
-        await eventProcessingService.MarkEventAsProcessedAsync(bookId, eventType);
+            var bookDeleted = await bookRepository.DeleteAsync(bookId);
+            logger.LogInformation("Book {BookId} deleted from local cache: {Result}", bookId, bookDeleted);
+            await eventProcessingService.MarkEventAsProcessedAsync(bookId, eventType);
+        }
+        catch (Exception ex) {
+            logger.LogError(ex, "Error processing BookDeleted event for book ID: {BookId}", bookId);
+            throw;
+        }
     }
 }

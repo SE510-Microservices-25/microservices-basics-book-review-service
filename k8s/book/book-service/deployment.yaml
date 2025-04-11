@@ -26,7 +26,7 @@ spec:
             - name: ASPNETCORE_ENVIRONMENT
               value: "Development"
             - name: RabbitMQ__Host
-              value: "rabbitmq"
+              value: "book-rabbitmq"
             - name: RabbitMQ__Username
               value: "guest"
             - name: RabbitMQ__Password
@@ -34,7 +34,7 @@ spec:
             - name: MessageBus__ServiceSecretKey
               valueFrom:
                 secretKeyRef:
-                  name: service-secret
+                  name: book-service-secret
                   key: service-key
             - name: ConnectionStrings__DefaultConnection
               valueFrom:

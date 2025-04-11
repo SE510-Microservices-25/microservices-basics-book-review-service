@@ -1,16 +1,16 @@
 ﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: postgres
+  name: book-postgres
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postgres
+      app: book-postgres
   template:
     metadata:
       labels:
-        app: postgres
+        app: book-postgres
     spec:
       containers:
         - name: postgres
@@ -19,14 +19,14 @@ spec:
             - containerPort: 5432
           env:
             - name: POSTGRES_USER
-              value: review_user
+              value: book_user
             - name: POSTGRES_PASSWORD
-              value: review_password
+              value: book_password
             - name: POSTGRES_DB
-              value: ReviewDB
+              value: BookDB
           volumeMounts:
-            - name: postgres-data
+            - name: book-postgres-data
               mountPath: /var/lib/postgresql/data
       volumes:
-        - name: postgres-data
+        - name: book-postgres-data
           emptyDir: {}

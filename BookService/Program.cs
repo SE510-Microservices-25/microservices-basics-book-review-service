@@ -16,15 +16,19 @@ builder.Services.AddScoped<IMessageBusService, MessageBusService>();
 builder.Services.AddScoped<InitialDataSyncService>();
 
 builder.Services.AddMassTransit(x => {
-    x.UsingRabbitMq((_, cfg) => {
-        var rabbitMqHost = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq";
-        var rabbitMqUsername = builder.Configuration["RabbitMQ:Username"] ?? "guest";
-        var rabbitMqPassword = builder.Configuration["RabbitMQ:Password"] ?? "guest";
-
-        cfg.Host(rabbitMqHost, h => {
-            h.Username(rabbitMqUsername);
-            h.Password(rabbitMqPassword);
+    x.SetKebabCaseEndpointNameFormatter();
+    
+    x.UsingRabbitMq((context, cfg) => {
+        var host = builder.Configuration["RabbitMQ:Host"] ?? "book-rabbitmq";
+        var username = builder.Configuration["RabbitMQ:Username"] ?? "guest";
+        var password = builder.Configuration["RabbitMQ:Password"] ?? "guest";
+        
+        cfg.Host(host, "/", h => {
+            h.Username(username);
+            h.Password(password);
         });
+        
+        cfg.ConfigureEndpoints(context);
     });
 });
 
@@ -34,11 +38,6 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment()) {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
 using (var scope = app.Services.CreateScope()) {
     var dbContext = scope.ServiceProvider.GetRequiredService<BookDbContext>();
     dbContext.Database.Migrate();
@@ -46,7 +45,11 @@ using (var scope = app.Services.CreateScope()) {
     await syncService.SyncInitialDataAsync();
 }
 
-app.UseHttpsRedirection();
+if (app.Environment.IsDevelopment()) {
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.UseAuthorization();
 app.MapControllers();
 

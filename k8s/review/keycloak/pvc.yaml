@@ -1,7 +1,7 @@
 ﻿apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: keycloak-data-pvc
+  name: review-keycloak-data-pvc
 spec:
   accessModes:
     - ReadWriteOnce
