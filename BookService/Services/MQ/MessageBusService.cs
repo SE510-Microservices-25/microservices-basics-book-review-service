@@ -32,7 +32,7 @@ public class MessageBusService(IBus bus, ILogger<MessageBusService> logger, ICon
 
     public async Task PublishBookCreated(Book book) {
         var messageId = $"BookCreated-{book.Id}";
-        await PublishWithLogging(BookCreated.FromBook(book), messageId);
+        await PublishWithLogging(new BookCreated(book.Id, book.Title, book.Author, book.Genre, book.CreatedAt), messageId);
     }
     public async Task PublishBookDeleted(int id) {
         var messageId = $"BookDeleted-{id}";

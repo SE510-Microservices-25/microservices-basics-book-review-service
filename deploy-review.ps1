@@ -58,7 +58,6 @@ function Wait-ForPodsReady {
 function Get-ServicesUrl {
     Write-Host "Review Service: http://review.local/swagger" -ForegroundColor Green
     Write-Host "Keycloak: http://auth.review.local" -ForegroundColor Green
-    Write-Host "RabbitMQ Management: http://review-rabbitmq.local" -ForegroundColor Green
 }
 
 function Cleanup-Cluster {
@@ -69,13 +68,11 @@ function Cleanup-Cluster {
 
     # Deployments
     kubectl delete -f k8s/review/review-service/deployment.yaml
-    kubectl delete -f k8s/review/rabbitmq/deployment.yaml
     kubectl delete -f k8s/review/keycloak/deployment.yaml
     kubectl delete -f k8s/review/postgres/deployment.yaml
 
     # Services
     kubectl delete -f k8s/review/review-service/service.yaml
-    kubectl delete -f k8s/review/rabbitmq/service.yaml
     kubectl delete -f k8s/review/keycloak/service.yaml
     kubectl delete -f k8s/review/postgres/service.yaml
 

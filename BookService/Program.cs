@@ -19,7 +19,7 @@ builder.Services.AddMassTransit(x => {
     x.SetKebabCaseEndpointNameFormatter();
     
     x.UsingRabbitMq((context, cfg) => {
-        var host = builder.Configuration["RabbitMQ:Host"] ?? "book-rabbitmq";
+        var host = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq";
         var username = builder.Configuration["RabbitMQ:Username"] ?? "guest";
         var password = builder.Configuration["RabbitMQ:Password"] ?? "guest";
         

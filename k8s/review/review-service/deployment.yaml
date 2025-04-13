@@ -18,7 +18,7 @@ spec:
           command: ['sh', '-c', 'until pg_isready -h review-postgres -p 5432 -U review_user; do echo waiting for postgres; sleep 2; done;']
         - name: wait-for-rabbitmq
           image: busybox
-          command: [ 'sh', '-c', 'until nc -z review-rabbitmq 5672; do echo waiting for rabbitmq; sleep 2; done;' ]
+          command: [ 'sh', '-c', 'until nc -z rabbitmq 5672; do echo waiting for rabbitmq; sleep 2; done;' ]
       containers:
         - name: review-service
           image: review-service:latest
@@ -35,7 +35,7 @@ spec:
             - name: Keycloak__ClientId
               value: "review-service"
             - name: RabbitMQ__Host
-              value: "review-rabbitmq"
+              value: "rabbitmq"
             - name: RabbitMQ__Username
               value: "guest"
             - name: RabbitMQ__Password

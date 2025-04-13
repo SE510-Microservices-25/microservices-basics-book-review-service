@@ -15,16 +15,6 @@ spec:
                 name: review-service
                 port:
                   number: 80
-    - host: mq.review.local
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: review-rabbitmq
-                port:
-                  number: 15672
     - host: auth.review.local
       http:
         paths:

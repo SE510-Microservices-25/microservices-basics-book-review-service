@@ -18,18 +18,21 @@ function Build-DockerImage {
 function Deploy-ToKubernetes {
     Write-Host "Deploying Book Service to Kubernetes..." -ForegroundColor Cyan
     
+    # Common
+    kubectl apply -f k8s/common/rabbitmq/service.yaml
+    kubectl apply -f k8s/common/rabbitmq/deployment.yaml
+    kubectl apply -f k8s/common/ingress.yaml
+
     # Secrets
     kubectl apply -f k8s/book/postgres/secret.yaml
     kubectl apply -f k8s/book/book-service/secret.yaml
 
     # Services
     kubectl apply -f k8s/book/postgres/service.yaml
-    kubectl apply -f k8s/book/rabbitmq/service.yaml
     kubectl apply -f k8s/book/book-service/service.yaml
 
     # Deployments
     kubectl apply -f k8s/book/postgres/deployment.yaml
-    kubectl apply -f k8s/book/rabbitmq/deployment.yaml
     kubectl apply -f k8s/book/book-service/deployment.yaml
 
     # Ingress
@@ -54,7 +57,7 @@ function Wait-ForPodsReady {
 
 function Get-ServicesUrl {
     Write-Host "Book Service: http://book.local/swagger" -ForegroundColor Green
-    Write-Host "RabbitMQ Management: http://book-rabbitmq.local" -ForegroundColor Green
+    Write-Host "RabbitMQ Management: http://rabbitmq.local" -ForegroundColor Green
 }
 
 function Cleanup-Cluster {
@@ -65,17 +68,20 @@ function Cleanup-Cluster {
 
     # Deployments
     kubectl delete -f k8s/book/book-service/deployment.yaml
-    kubectl delete -f k8s/book/rabbitmq/deployment.yaml
     kubectl delete -f k8s/book/postgres/deployment.yaml
 
     # Services
     kubectl delete -f k8s/book/book-service/service.yaml
-    kubectl delete -f k8s/book/rabbitmq/service.yaml
     kubectl delete -f k8s/book/postgres/service.yaml
 
     # Secrets
     kubectl delete -f k8s/book/book-service/secret.yaml
     kubectl delete -f k8s/book/postgres/secret.yaml
+    
+    # Common
+    kubectl delete -f k8s/common/ingress.yaml
+    kubectl delete -f k8s/common/rabbitmq/deployment.yaml
+    kubectl delete -f k8s/common/rabbitmq/service.yaml
 }
 
 switch ($Action) {

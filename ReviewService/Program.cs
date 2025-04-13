@@ -35,7 +35,7 @@ builder.Services.AddMassTransit(x => {
     x.AddConsumer<DLQConsumer>();
 
     x.UsingRabbitMq((context, cfg) => {
-        var host = builder.Configuration["RabbitMQ:Host"] ?? "review-rabbitmq";
+        var host = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq";
         var username = builder.Configuration["RabbitMQ:Username"] ?? "guest";
         var password = builder.Configuration["RabbitMQ:Password"] ?? "guest";
 
