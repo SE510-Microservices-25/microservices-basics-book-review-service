@@ -5,6 +5,7 @@ using BookService.Data;
 using BookService.Repositories;
 using BookService.Services.MQ;
 using BookService.Services.Sync;
+using BookService.Consumers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,7 @@ builder.Services.AddScoped<InitialDataSyncService>();
 
 builder.Services.AddMassTransit(x => {
     x.SetKebabCaseEndpointNameFormatter();
+    x.AddConsumer<ReviewMessageLogConsumer>();
     
     x.UsingRabbitMq((context, cfg) => {
         var host = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq";
@@ -28,7 +30,9 @@ builder.Services.AddMassTransit(x => {
             h.Password(password);
         });
         
-        cfg.ConfigureEndpoints(context);
+        cfg.ReceiveEndpoint("book-service-message-logs", e => {
+            e.ConfigureConsumer<ReviewMessageLogConsumer>(context);
+        });
     });
 });
 

@@ -41,7 +41,7 @@ function Deploy-ToKubernetes {
 
 function Wait-ForPodsReady {
     Write-Host "Waiting for Book Service pods to be ready..." -ForegroundColor Yellow
-    $labelSelector = "app in (book-service,book-postgres,book-rabbitmq)"
+    $labelSelector = "app in (book-service,book-postgres,rabbitmq)"
     foreach ($i in 1..10) {
         $podStatus = kubectl get pods --selector=$labelSelector --no-headers | Where-Object { $_ -notmatch "Running|Completed" }
         if (-not $podStatus) {
@@ -89,7 +89,7 @@ switch ($Action) {
         Build-DockerImage
         Deploy-ToKubernetes
         if (Wait-ForPodsReady) {
-            kubectl get pods -l "app in (book-service,book-postgres,book-rabbitmq)"
+            kubectl get pods -l "app in (book-service,book-postgres,rabbitmq)"
             Get-ServicesUrl
         }
     }

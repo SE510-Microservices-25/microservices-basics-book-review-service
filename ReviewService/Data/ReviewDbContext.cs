@@ -8,6 +8,7 @@ public class ReviewDbContext(DbContextOptions<ReviewDbContext> options) : DbCont
     public DbSet<Review> Reviews { get; set; }
     public DbSet<ProcessedEvent> ProcessedEvents { get; set; }
     public DbSet<Book> Books { get; set; }
+    public DbSet<OutboxMessage> OutboxMessages { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         ConfigureData(modelBuilder);
@@ -27,6 +28,9 @@ public class ReviewDbContext(DbContextOptions<ReviewDbContext> options) : DbCont
             
         modelBuilder.Entity<Book>()
             .HasKey(b => b.Id);
+        
+        modelBuilder.Entity<OutboxMessage>()
+            .HasKey(o => o.Id);
     }
 
     private static void SeedData(ModelBuilder modelBuilder) {

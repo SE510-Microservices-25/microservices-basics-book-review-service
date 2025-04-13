@@ -6,6 +6,7 @@ using MassTransit;
 
 using ReviewService.Data;
 using ReviewService.Services;
+using ReviewService.Services.Outbox;
 using ReviewService.Consumers;
 using ReviewService.Repositories;
 using ReviewService.Models;
@@ -104,6 +105,7 @@ builder.Services.AddSwaggerGen(options => {
     });
 });
 
+builder.Services.AddHostedService<OutboxProcessor>();
 builder.Services.AddAuthorization();
 
 var app = builder.Build();

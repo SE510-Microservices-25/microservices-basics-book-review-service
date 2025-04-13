@@ -12,7 +12,7 @@ using ReviewService.Data;
 namespace ReviewService.Migrations
 {
     [DbContext(typeof(ReviewDbContext))]
-    [Migration("20250412201234_Initial")]
+    [Migration("20250413105724_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -48,6 +48,38 @@ namespace ReviewService.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Books");
+                });
+
+            modelBuilder.Entity("ReviewService.Models.OutboxMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Headers")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MessageType")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OutboxMessages");
                 });
 
             modelBuilder.Entity("ReviewService.Models.ProcessedEvent", b =>

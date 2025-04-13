@@ -26,13 +26,11 @@ function Deploy-ToKubernetes {
     # Services
     kubectl apply -f k8s/review/postgres/service.yaml
     kubectl apply -f k8s/review/keycloak/service.yaml
-    kubectl apply -f k8s/review/rabbitmq/service.yaml
     kubectl apply -f k8s/review/review-service/service.yaml
     
     # Deployments
     kubectl apply -f k8s/review/postgres/deployment.yaml
     kubectl apply -f k8s/review/keycloak/deployment.yaml
-    kubectl apply -f k8s/review/rabbitmq/deployment.yaml
     kubectl apply -f k8s/review/review-service/deployment.yaml
 
     # Ingress
@@ -41,7 +39,7 @@ function Deploy-ToKubernetes {
 
 function Wait-ForPodsReady {
     Write-Host "Waiting for Review Service pods to be ready..." -ForegroundColor Yellow
-    $labelSelector = "app in (review-service,review-postgres,review-rabbitmq,review-keycloak)"
+    $labelSelector = "app in (review-service,review-postgres,review-keycloak)"
     foreach ($i in 1..10) {
         $podStatus = kubectl get pods --selector=$labelSelector --no-headers | Where-Object { $_ -notmatch "Running|Completed" }
         if (-not $podStatus) {
@@ -86,7 +84,7 @@ switch ($Action) {
         Build-DockerImage
         Deploy-ToKubernetes
         if (Wait-ForPodsReady) {
-            kubectl get pods -l "app in (review-service,review-postgres,review-rabbitmq,review-keycloak)"
+            kubectl get pods -l "app in (review-service,review-postgres,review-keycloak)"
             Get-ServicesUrl
         }
     }

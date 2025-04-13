@@ -4,7 +4,7 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 
-using Contracts;
+using BookService.Contracts;
 using Services.Event;
 using Repositories.Review;
 using Repositories.Book;
