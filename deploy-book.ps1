@@ -64,18 +64,18 @@ function Cleanup-Cluster {
     kubectl delete -f k8s/book/ingress.yaml
 
     # Deployments
-    kubectl apply -f k8s/book/book-service/deployment.yaml
-    kubectl apply -f k8s/book/rabbitmq/deployment.yaml
-    kubectl apply -f k8s/book/postgres/deployment.yaml
+    kubectl delete -f k8s/book/book-service/deployment.yaml
+    kubectl delete -f k8s/book/rabbitmq/deployment.yaml
+    kubectl delete -f k8s/book/postgres/deployment.yaml
 
     # Services
-    kubectl apply -f k8s/book/book-service/service.yaml
-    kubectl apply -f k8s/book/rabbitmq/service.yaml
-    kubectl apply -f k8s/book/postgres/service.yaml
+    kubectl delete -f k8s/book/book-service/service.yaml
+    kubectl delete -f k8s/book/rabbitmq/service.yaml
+    kubectl delete -f k8s/book/postgres/service.yaml
 
     # Secrets
-    kubectl apply -f k8s/book/book-service/secret.yaml
-    kubectl apply -f k8s/book/postgres/secret.yaml
+    kubectl delete -f k8s/book/book-service/secret.yaml
+    kubectl delete -f k8s/book/postgres/secret.yaml
 }
 
 switch ($Action) {

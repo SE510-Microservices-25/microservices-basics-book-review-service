@@ -15,17 +15,7 @@ spec:
                 name: review-service
                 port:
                   number: 80
-    - host: auth.review.local
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: review-keycloak
-                port:
-                  number: 8080
-    - host: review-rabbitmq.local
+    - host: mq.review.local
       http:
         paths:
           - path: /
@@ -35,3 +25,13 @@ spec:
                 name: review-rabbitmq
                 port:
                   number: 15672
+    - host: auth.review.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak
+                port:
+                  number: 8080

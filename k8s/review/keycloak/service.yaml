@@ -1,10 +1,11 @@
 ﻿apiVersion: v1
 kind: Service
 metadata:
-  name: review-keycloak
+  name: keycloak
 spec:
   selector:
-    app: review-keycloak
+    app: keycloak
   ports:
     - port: 8080
       targetPort: 8080
+  type: ClusterIP

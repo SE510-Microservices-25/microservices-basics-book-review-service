@@ -28,21 +28,6 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options => {
-        options.Authority = keycloakAuthority;
-        options.Audience = keycloakClientId;
-        options.RequireHttpsMetadata = false;
-        
-        options.TokenValidationParameters = new TokenValidationParameters {
-            ValidateIssuer = true,
-            ValidIssuers = [keycloakAuthority, keycloakExternalAuthority],
-            ValidateAudience = true,
-            ValidAudience = keycloakClientId,
-            ValidateLifetime = true
-        };
-    });
-
 builder.Services.AddMassTransit(x => {
     x.SetKebabCaseEndpointNameFormatter();
     x.AddConsumer<BookCreatedConsumer>();
@@ -59,21 +44,30 @@ builder.Services.AddMassTransit(x => {
             h.Password(password);
         });
 
-        cfg.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(1)));
-
-        cfg.ReceiveEndpoint("review-book-created", e => {
-            e.ConfigureConsumer<BookCreatedConsumer>(context);
-        });
-        
-        cfg.ReceiveEndpoint("review-book-deleted", e => {
-            e.ConfigureConsumer<BookDeletedConsumer>(context);
-        });
+        cfg.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(2)));
+        cfg.ConfigureEndpoints(context);
         
         cfg.ReceiveEndpoint("review-deadletter", e => {
             e.ConfigureConsumer<DLQConsumer>(context);
         });
     });
 });
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options => {
+        options.Authority = keycloakAuthority;
+        options.Audience = keycloakClientId;
+        options.RequireHttpsMetadata = false;
+        
+        options.TokenValidationParameters = new TokenValidationParameters {
+            ValidateIssuer = true,
+            ValidIssuers = [keycloakAuthority, keycloakExternalAuthority],
+            ValidateAudience = true,
+            ValidAudience = keycloakClientId,
+            ValidateLifetime = true
+        };
+    });
+
 
 builder.Services.AddSwaggerGen(options => {
     options.SwaggerDoc("v1", new OpenApiInfo { 
@@ -126,7 +120,9 @@ app.UseSwaggerUI(options => {
     options.OAuthAppName("Review Service - Swagger");
     options.OAuthUsePkce();
 });
+
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

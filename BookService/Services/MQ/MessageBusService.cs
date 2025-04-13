@@ -18,7 +18,6 @@ public class MessageBusService(IBus bus, ILogger<MessageBusService> logger, ICon
             .Start();
 
         try {
-            logger.LogInformation("Publishing {MessageType} with ID: {MessageId}", messageType, messageId);
             await bus.Publish(message, ctx => {
                 ctx.AddServiceAuthentication(configuration);
             });

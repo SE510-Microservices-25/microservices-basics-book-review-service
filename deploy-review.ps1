@@ -65,23 +65,23 @@ function Cleanup-Cluster {
     Write-Host "Cleaning up Review Service from Kubernetes cluster..." -ForegroundColor Cyan
 
     # Ingress
-    kubectl apply -f k8s/review/ingress.yaml
+    kubectl delete -f k8s/review/ingress.yaml
 
     # Deployments
-    kubectl apply -f k8s/review/review-service/deployment.yaml
-    kubectl apply -f k8s/review/rabbitmq/deployment.yaml
-    kubectl apply -f k8s/review/keycloak/deployment.yaml
-    kubectl apply -f k8s/review/postgres/deployment.yaml
+    kubectl delete -f k8s/review/review-service/deployment.yaml
+    kubectl delete -f k8s/review/rabbitmq/deployment.yaml
+    kubectl delete -f k8s/review/keycloak/deployment.yaml
+    kubectl delete -f k8s/review/postgres/deployment.yaml
 
     # Services
-    kubectl apply -f k8s/review/review-service/service.yaml
-    kubectl apply -f k8s/review/rabbitmq/service.yaml
-    kubectl apply -f k8s/review/keycloak/service.yaml
-    kubectl apply -f k8s/review/postgres/service.yaml
+    kubectl delete -f k8s/review/review-service/service.yaml
+    kubectl delete -f k8s/review/rabbitmq/service.yaml
+    kubectl delete -f k8s/review/keycloak/service.yaml
+    kubectl delete -f k8s/review/postgres/service.yaml
 
     # Secrets
-    kubectl apply -f k8s/review/review-service/secret.yaml
-    kubectl apply -f k8s/review/postgres/secret.yaml
+    kubectl delete -f k8s/review/review-service/secret.yaml
+    kubectl delete -f k8s/review/postgres/secret.yaml
 }
 
 switch ($Action) {

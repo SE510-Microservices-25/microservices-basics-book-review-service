@@ -16,6 +16,9 @@ spec:
         - name: wait-for-postgres
           image: postgres:latest
           command: ['sh', '-c', 'until pg_isready -h book-postgres -p 5432 -U book_user; do echo waiting for postgres; sleep 2; done;']
+        - name: wait-for-rabbitmq
+          image: busybox
+          command: [ 'sh', '-c', 'until nc -z book-rabbitmq 5672; do echo waiting for rabbitmq; sleep 2; done;' ]
       containers:
         - name: book-service
           image: book-service:latest

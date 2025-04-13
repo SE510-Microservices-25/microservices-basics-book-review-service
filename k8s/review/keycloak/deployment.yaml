@@ -1,16 +1,16 @@
 ﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: review-keycloak
+  name: keycloak
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: review-keycloak
+      app: keycloak
   template:
     metadata:
       labels:
-        app: review-keycloak
+        app: keycloak
     spec:
       containers:
         - name: keycloak
@@ -29,4 +29,4 @@ spec:
       volumes:
         - name: keycloak-data
           persistentVolumeClaim:
-            claimName: review-keycloak-data-pvc
+            claimName: keycloak-data-pvc
