@@ -4,16 +4,42 @@
     ports:
       - "5001:8080"
     depends_on:
-      postgres:
+      review-postgres:
         condition: service_healthy
       keycloak:
         condition: service_started
       rabbitmq:
         condition: service_started
+      book-service:
+        condition: service_started
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=review-postgres;Port=5432;Database=ReviewDB;Username=review_user;Password=review_password
       - Keycloak__Authority=http://keycloak:8080/realms/BookReview
+      - Keycloak__ExternalAuthority=http://localhost:8080/realms/BookReview
       - Keycloak__ClientId=review-service
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+      - MessageBus__ServiceSecretKey=secure-microservice-key
+    networks:
+      - microservices-network
+
+  book-service:
+    build: ./BookService
+    ports:
+      - "5002:8080"
+    depends_on:
+      book-postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=book-postgres;Port=5432;Database=BookDB;Username=book_user;Password=book_password
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
       - MessageBus__ServiceSecretKey=secure-microservice-key
     networks:
       - microservices-network
@@ -29,23 +55,50 @@
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - microservices-network
 
-  postgres:
+  review-postgres:
     image: postgres:latest
     container_name: review-postgres
     restart: always
     environment:
       POSTGRES_USER: review_user
       POSTGRES_PASSWORD: review_password
+      POSTGRES_DB: ReviewDB
     ports:
       - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - ./db-init:/docker-entrypoint-initdb.d
+      - review-postgres-data:/var/lib/postgresql/data
+      - ./db-init/review:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U review_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - microservices-network
+
+  book-postgres:
+    image: postgres:latest
+    container_name: book-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: book_user
+      POSTGRES_PASSWORD: book_password
+      POSTGRES_DB: BookDB
+    ports:
+      - "5433:5432"
+    volumes:
+      - book-postgres-data:/var/lib/postgresql/data
+      - ./db-init/book:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U book_user"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -71,5 +124,6 @@ networks:
     driver: bridge
 
 volumes:
-  postgres-data:
+  review-postgres-data:
+  book-postgres-data:
   keycloak-data:
