@@ -58,10 +58,6 @@ namespace ReviewService.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Headers")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("MessageType")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -73,6 +69,10 @@ namespace ReviewService.Migrations
 
                     b.Property<DateTime?>("ProcessedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Secret")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

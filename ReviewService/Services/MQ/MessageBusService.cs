@@ -18,10 +18,7 @@ public class MessageBusService(IOutboxRepository outboxRepository, ILogger<Messa
 
         try {
             logger.LogInformation("Publishing {MessageType} with ID: {MessageId}", messageType, messageId);
-            var headers = new Dictionary<string, object> {
-                { "ServiceAuthentication", configuration["MessageBus:ServiceSecretKey"] ?? "default-key" }
-            };
-            await outboxRepository.AddAsync(message, headers);
+            await outboxRepository.AddAsync(message, messageType, configuration["MessageBus:ServiceSecretKey"] ?? "default-key");
             logger.LogInformation("Successfully published {MessageType}", messageType);
         }
         catch (Exception ex) {

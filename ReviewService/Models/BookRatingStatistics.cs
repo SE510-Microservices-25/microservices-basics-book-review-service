@@ -1,6 +1,8 @@
 ﻿namespace ReviewService.Models;
 
-public class BookRatingStatistics {
+using Contracts;
+
+public class BookRatingStatistics : IReviewEvent {
     public int BookId { get; set; }
     public double AverageRating { get; set; }
     public int ReviewCount { get; set; }

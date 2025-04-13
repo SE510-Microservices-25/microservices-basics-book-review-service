@@ -38,7 +38,7 @@ namespace ReviewService.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     MessageType = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Payload = table.Column<string>(type: "text", nullable: false),
-                    Headers = table.Column<string>(type: "text", nullable: false),
+                    Secret = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ProcessedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },

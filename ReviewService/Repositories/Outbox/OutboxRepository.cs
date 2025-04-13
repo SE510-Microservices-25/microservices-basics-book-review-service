@@ -24,22 +24,15 @@ public class OutboxRepository(ReviewDbContext context) : IOutboxRepository {
         }
     }
     
-    public async Task AddAsync<T>(T message, Dictionary<string, object>? headers) where T : class {
+    public async Task AddAsync<T>(T message, string messageType, string secretKey) where T : class {
         var outboxMessage = new OutboxMessage {
-            MessageType = typeof(T).Name,
+            MessageType = messageType,
             Payload = JsonSerializer.Serialize(message),
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            Secret = secretKey
         };
         
-        if (headers != null) {
-            outboxMessage.Headers = JsonSerializer.Serialize(headers);
-        }
-        
         context.OutboxMessages.Add(outboxMessage);
-        await context.SaveChangesAsync();
-    }
-    
-    public async Task SaveChangesAsync() {
         await context.SaveChangesAsync();
     }
 }

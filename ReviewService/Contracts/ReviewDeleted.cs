@@ -1,3 +1,5 @@
 ﻿namespace ReviewService.Contracts;
 
-public record ReviewDeleted(int Id, int BookId);
+public interface IReviewEvent;
+
+public record ReviewDeleted(int Id, int BookId) : IReviewEvent;

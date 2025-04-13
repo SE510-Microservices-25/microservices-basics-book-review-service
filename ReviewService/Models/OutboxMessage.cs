@@ -12,7 +12,7 @@ public class OutboxMessage {
     [Required]
     public string Payload { get; set; }
     
-    public string Headers { get; set; } = "{}";
+    public string Secret { get; set; }
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     

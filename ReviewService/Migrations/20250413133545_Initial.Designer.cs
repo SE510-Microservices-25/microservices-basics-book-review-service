@@ -12,7 +12,7 @@ using ReviewService.Data;
 namespace ReviewService.Migrations
 {
     [DbContext(typeof(ReviewDbContext))]
-    [Migration("20250413105724_Initial")]
+    [Migration("20250413133545_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -61,10 +61,6 @@ namespace ReviewService.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Headers")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("MessageType")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -76,6 +72,10 @@ namespace ReviewService.Migrations
 
                     b.Property<DateTime?>("ProcessedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Secret")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

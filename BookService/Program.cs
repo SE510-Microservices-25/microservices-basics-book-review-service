@@ -30,7 +30,7 @@ builder.Services.AddMassTransit(x => {
             h.Password(password);
         });
         
-        cfg.ReceiveEndpoint("book-service-message-logs", e => {
+        cfg.ReceiveEndpoint("book-service-review-events", e => {
             e.ConfigureConsumer<ReviewMessageLogConsumer>(context);
         });
     });

@@ -2,7 +2,9 @@
 
 using System.ComponentModel.DataAnnotations;
 
-public class Review {
+using Contracts;
+
+public class Review : IReviewEvent {
     public int Id { get; set; }
     public int BookId { get; set; }
     

@@ -54,11 +54,8 @@ public class OutboxProcessor(IServiceProvider serviceProvider, ILogger<OutboxPro
                     continue;
                 }
                 
-                var headers = JsonSerializer.Deserialize<Dictionary<string, object>>(message.Headers)!;
                 await bus.Publish(messageObject, messageType, ctx => {
-                    foreach (var header in headers) {
-                        ctx.Headers.Set(header.Key, header.Value);
-                    }
+                    ctx.Headers.Set("ServiceAuthentication", message.Secret);
                 }, stoppingToken);
                 
                 await outboxRepository.MarkAsProcessedAsync(message.Id);
