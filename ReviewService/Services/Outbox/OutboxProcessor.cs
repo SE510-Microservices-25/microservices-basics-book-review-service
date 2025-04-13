@@ -57,7 +57,7 @@ public class OutboxProcessor(IServiceProvider serviceProvider, ILogger<OutboxPro
                 await bus.Publish(messageObject, messageType, ctx => {
                     ctx.Headers.Set("ServiceAuthentication", message.Secret);
                 }, stoppingToken);
-                
+                logger.LogInformation("Published message {Id} of type {Type}", message.Id, messageType);
                 await outboxRepository.MarkAsProcessedAsync(message.Id);
             } catch (Exception ex) {
                 logger.LogError(ex, "Error processing message {Id}", message.Id);

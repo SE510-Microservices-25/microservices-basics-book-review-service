@@ -9,7 +9,7 @@ using Models;
 
 public class MessageBusService(IOutboxRepository outboxRepository, ILogger<MessageBusService> logger, IConfiguration configuration) : IMessageBusService {
     private async Task PublishWithOutbox<T>(T message, string messageId) where T : class {
-        var messageType = typeof(T).Name;
+        var messageType = typeof(T).FullName;
     
         using var activity = new Activity("PublishEvent")
             .SetTag("message.type", messageType)
@@ -20,8 +20,7 @@ public class MessageBusService(IOutboxRepository outboxRepository, ILogger<Messa
             logger.LogInformation("Publishing {MessageType} with ID: {MessageId}", messageType, messageId);
             await outboxRepository.AddAsync(message, messageType, configuration["MessageBus:ServiceSecretKey"] ?? "default-key");
             logger.LogInformation("Successfully published {MessageType}", messageType);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             logger.LogError(ex, "Failed to publish {MessageType} with ID: {MessageId}", messageType, messageId);
             activity.SetTag("error", true);
             throw;
