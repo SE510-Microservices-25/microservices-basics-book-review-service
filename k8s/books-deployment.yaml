@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: books-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: books-service
+  template:
+    metadata:
+      labels:
+        app: books-service
+    spec:
+      containers:
+        - name: books-service
+          image: books-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Development"
+            - name: Keycloak__Authority
+              value: "http://keycloak:8080/realms/BookReview"
+            - name: Keycloak__ExternalAuthority
+              value: "http://auth.bookreview.local/realms/BookReview"
+            - name: Keycloak__ClientId
+              value: "books-service"
+            - name: CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: books-secret
+                  key: connection-string
